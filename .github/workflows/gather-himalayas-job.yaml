@@ -1,0 +1,24 @@
+---
+name: 'Gather all jobs on "https://himalayas.app/"'
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '00 05 * * *'
+
+jobs:
+  gather:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          make get_jobs
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: jobs.json
+          path: /tmp/jobs.json
