@@ -22,7 +22,7 @@ fi
 
 current_offset=0
 continue_loop=1
-while [[ $continue_loop > 0 ]]; do
+while [[ $continue_loop == 1 ]]; do
   temp_file=$(mktemp)
   curl -s "https://himalayas.app/jobs/api?offset=$current_offset" > $temp_file
   cat <<< $(jq -s 'add' $jobs_file <(jq '.jobs' $temp_file)) > $jobs_file
@@ -30,7 +30,7 @@ while [[ $continue_loop > 0 ]]; do
   res_limit=$(jq .limit $temp_file)
   res_total_count=$(jq .total_count $temp_file)
   (( current_offset += res_limit ))
-  if [[ $current_offset > $res_total_count ]]; then
+  if [[ $current_offset -gt $res_total_count ]]; then
     continue_loop=0
   else
     sleep 1
