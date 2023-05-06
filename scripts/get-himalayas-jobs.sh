@@ -2,33 +2,22 @@
 
 
 ##
-# Usage: ./script <output_filepath>
+# Usage:    ./script <output_file>
 #
 ##
 
 set -x
 
-# setup user args
-
-jobs_file=$1
-if [[ -z "$jobs_file" ]]; then
-  echo "Required: filename to put results"
-  exit 1
-else
-  > $jobs_file
-fi
-
-# begin API quer(ies)
+output_file=$1
 
 current_offset=0
 continue_loop=1
 while [[ $continue_loop == 1 ]]; do
-  temp_file=$(mktemp)
-  curl -s "https://himalayas.app/jobs/api?offset=$current_offset" > $temp_file
-  cat <<< $(jq -s 'add' $jobs_file <(jq '.jobs' $temp_file)) > $jobs_file
+  res=$(curl -s "https://himalayas.app/jobs/api?offset=$current_offset")
+  cat <<< $(jq -s 'add' $output_file <(jq '.jobs' <<< $res)) > $output_file
 
-  res_limit=$(jq .limit $temp_file)
-  res_total_count=$(jq .total_count $temp_file)
+  res_limit=$(jq .limit <<< $res)
+  res_total_count=$(jq .total_count <<< $res)
   (( current_offset += res_limit ))
   if [[ $current_offset -gt $res_total_count ]]; then
     continue_loop=0

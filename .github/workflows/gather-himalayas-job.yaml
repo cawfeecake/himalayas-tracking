@@ -16,9 +16,9 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
-          make get_jobs
+          make jobs.json
 
       - uses: actions/upload-artifact@v3
         with:
           name: jobs.json
-          path: /tmp/jobs.json
+          path: jobs.json
